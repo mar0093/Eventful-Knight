@@ -237,7 +237,7 @@ class CardGenerator {
             this.ctx.fillText(suitSymbol, centerX , centerY + 60);
 
             // Draw decorative line
-            this.ctx.strokeStyle = suitColor;
+            this.ctx.strokeStyle = borderColor;
             this.ctx.lineWidth = 2;
             this.ctx.beginPath();
             this.ctx.moveTo(centerX - 60, centerY + 120);
@@ -268,7 +268,9 @@ class CardGenerator {
         const suit = document.getElementById('suitSelect').value;
         const color1 = document.getElementById('squareColor1').value || 'none';
         const color2 = document.getElementById('squareColor2').value || 'none';
-        const filename = `playing-card-${rank}-${suit}-${color1}-${color2}.png`;
+        const color3 = document.getElementById('squareColor3').value || 'none';
+        const color4 = document.getElementById('squareColor4').value || 'none';
+        const filename = `playing-card-${rank}-${suit}-${color1}-${color2}-${color3}-${color4}.png`;
 
         this.canvas.toBlob((blob) => {
             const url = URL.createObjectURL(blob);
