@@ -33,7 +33,8 @@ class CardGenerator {
             knight: '⚔️',
             fairy: '🧚',
             mage: '🧙',
-            villager: '👨'
+            villager: '👨',
+            forest: '🌲'
         };
     }
 
@@ -42,6 +43,13 @@ class CardGenerator {
         document.getElementById('downloadBtn').addEventListener('click', () => this.downloadCard());
         document.getElementById('rankSelect').addEventListener('change', () => this.generateCard());
         document.getElementById('suitSelect').addEventListener('change', () => this.generateCard());
+        document.getElementById('borderColor').addEventListener('change', () => this.generateCard());
+
+        // square colour selectors
+        ['squareColor1','squareColor2','squareColor3','squareColor4'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.addEventListener('change', () => this.generateCard());
+        });
     }
 
     getColorScheme() {
@@ -54,7 +62,8 @@ class CardGenerator {
             knight: '#0066CC',  // blue
             mage: '#CC0000',    // red
             fairy: '#00CC66',   // green
-            villager: '#000000' // black
+            villager: '#000000', // black
+            forest: '#228B22'   // forest green
         };
         return suitColors[suit] || '#000000';
     }
@@ -65,67 +74,90 @@ class CardGenerator {
         const colors = this.getColorScheme();
         const suitColor = this.getSuitColor(suit);
         const suitSymbol = this.suits[suit];
+        const squareColors = this.getSquareColorArray();
+        const borderColorEl = document.getElementById('borderColor');
+        const borderColor = borderColorEl ? borderColorEl.value : suitColor;
 
         // Clear canvas
         this.ctx.fillStyle = colors.background;
         this.ctx.fillRect(0, 0, this.cardWidth, this.cardHeight);
 
         // Draw border
-        this.ctx.strokeStyle = suitColor;
+        this.ctx.strokeStyle = borderColor;
         this.ctx.lineWidth = 3;
         this.ctx.strokeRect(5, 5, this.cardWidth - 10, this.cardHeight - 10);
 
-        // Draw rounded corners decoration
-        this.drawCornerDecorations(suitColor, suitSymbol, colors);
+        // Draw rounded corners decoration (background squares use borderColor)
+        this.drawCornerDecorations(suitColor, suitSymbol, colors, squareColors, borderColor);
 
         // Draw center content
-        this.drawCenterContent(rank, suitSymbol, suitColor, colors);
+        this.drawCenterContent(rank, suitSymbol, suitColor, colors, squareColors);
     }
 
-    drawCornerDecorations(suitColor, suitSymbol, colors) {
+    drawCornerDecorations(suitColor, suitSymbol, colors, squareColors, borderColor) {
         const padding = 15;
         const cornerSize = 60;
 
-        // Top-left corner
-        this.drawCorner(padding, padding, suitSymbol, 0, suitColor, colors);
+        // Top-left corner (no background square)
+        this.drawCorner(padding, padding, suitSymbol, 0, suitColor, colors, squareColors);
 
         // Top-right corner (flipped)
         this.ctx.save();
         this.ctx.translate(this.cardWidth, 0);
         this.ctx.scale(-1, 1);
-        this.drawCorner(padding, padding, suitSymbol, 0, suitColor, colors);
+        this.ctx.fillStyle = borderColor;
+        this.ctx.fillRect(-padding- cornerSize +5, padding-5, cornerSize, cornerSize);
+        this.drawCorner(padding, padding, suitSymbol, 0, suitColor, colors, squareColors);
         this.ctx.restore();
 
         // Bottom-left corner (flipped)
         this.ctx.save();
         this.ctx.translate(0, this.cardHeight);
         this.ctx.scale(1, -1);
-        this.drawCorner(padding, padding, suitSymbol, 0, suitColor, colors);
+        this.ctx.fillStyle = borderColor;
+        this.ctx.fillRect(padding-5, -padding- cornerSize +5, cornerSize, cornerSize);
+        this.drawCorner(padding, padding, suitSymbol, 0, suitColor, colors, squareColors);
         this.ctx.restore();
 
         // Bottom-right corner (flipped)
         this.ctx.save();
         this.ctx.translate(this.cardWidth, this.cardHeight);
         this.ctx.scale(-1, -1);
-        this.drawCorner(padding, padding, suitSymbol, 0, suitColor, colors);
+        this.ctx.fillStyle = borderColor;
+        this.ctx.fillRect(-padding- cornerSize +5, -padding- cornerSize +5, cornerSize, cornerSize);
+        this.drawCorner(padding, padding, suitSymbol, 0, suitColor, colors, squareColors);
         this.ctx.restore();
     }
 
-    drawCorner(x, y, suitSymbol, rotation, suitColor, colors) {
-        // Draw the rank and suit in corners
-        this.ctx.fillStyle = suitColor;
+    drawCorner(x, y, suitSymbol, rotation, suitColor, colors, squareColors) {
+        const rankText = document.getElementById('rankSelect').value;
         this.ctx.font = 'bold 32px Arial, sans-serif';
         this.ctx.textAlign = 'left';
         this.ctx.textBaseline = 'top';
-        this.ctx.fillText(document.getElementById('rankSelect').value, x, y);
+
+        if (squareColors && rankText.includes('■')) {
+            // draw each square separately with custom colours
+            let offsetX = x;
+            for (let i = 0; i < rankText.length; i++) {
+                const ch = rankText[i];
+                const colorForChar = squareColors[i] || suitColor;
+                this.ctx.fillStyle = colorForChar;
+                this.ctx.fillText(ch, offsetX, y);
+                offsetX += this.ctx.measureText(ch).width;
+            }
+        } else {
+            this.ctx.fillStyle = suitColor;
+            this.ctx.fillText(rankText, x, y);
+        }
 
         // Draw suit symbol below rank
         this.ctx.font = 'bold 24px Arial, sans-serif';
+        this.ctx.fillStyle = suitColor;
         this.ctx.fillText(suitSymbol, x, y + 28);
     }
 
-    drawCenterContent(rank, suitSymbol, suitColor, colors) {
-        const centerX = this.cardWidth / 2;
+    drawCenterContent(rank, suitSymbol, suitColor, colors, squareColors) {
+        const centerX = this.cardWidth / 2; // slight offset to the right for better visual balance
         const centerY = this.cardHeight / 2;
 
         if (rank && rank.trim() !== '') {
@@ -138,14 +170,45 @@ class CardGenerator {
             this.ctx.fillText(suitSymbol, centerX, centerY - 30);
             this.ctx.globalAlpha = 1;
 
-            // Draw rank in center
+            // Draw rank in center with optional custom square colours
             this.ctx.font = 'bold 80px Arial, sans-serif';
-            this.ctx.fillStyle = suitColor;
-            this.ctx.fillText(rank, centerX, centerY);
+            if (squareColors && rank.includes('■')) {
+                // special case: four squares should be arranged 2x2 centered
+                if (rank === '■■■■') {
+                    const cellW = this.ctx.measureText('■').width;
+                    const spacing = 10; // extra space between squares and on sides
+                    const totalWidth = cellW * 2 + spacing;
+                    const startX = centerX - totalWidth / 2;
+                    const startY = centerY - cellW - spacing/2;
+                    for (let i = 0; i < 4; i++) {
+                        const row = Math.floor(i / 2);
+                        const col = i % 2;
+                        const colorForChar = squareColors[i] || suitColor;
+                        this.ctx.fillStyle = colorForChar;
+                        this.ctx.fillText('■', startX + col * (cellW + spacing/2), startY + row * (cellW + spacing/2));
+                    }
+                } else {
+                    // fallback: draw inline with fixed char width for consistency
+                    const charWidth = this.ctx.measureText('★').width; // use star width as standard
+                    const totalWidth = charWidth * rank.length;
+                    let offsetX = centerX - totalWidth / 2;
+                    for (let i = 0; i < rank.length; i++) {
+                        const ch = rank[i];
+                        const colorForChar = squareColors[i] || suitColor;
+                        this.ctx.fillStyle = colorForChar;
+                        this.ctx.fillText(ch, offsetX, centerY);
+                        offsetX += charWidth;
+                    }
+                }
+            } else {
+                this.ctx.fillStyle = suitColor;
+                this.ctx.fillText(rank, centerX, centerY);
+            }
 
             // Draw suit symbol below rank
             this.ctx.font = 'bold 40px Arial, sans-serif';
-            this.ctx.fillText(suitSymbol, centerX, centerY + 60);
+            this.ctx.fillStyle = suitColor;
+            this.ctx.fillText(suitSymbol, centerX , centerY + 60);
 
             // Draw decorative line
             this.ctx.strokeStyle = suitColor;
@@ -162,6 +225,16 @@ class CardGenerator {
             this.ctx.textBaseline = 'middle';
             this.ctx.fillText(suitSymbol, centerX, centerY);
         }
+    }
+
+    getSquareColorArray() {
+        // return an array of four colours from the generic selectors
+        const arr = [];
+        for (let i = 1; i <= 4; i++) {
+            const el = document.getElementById(`squareColor${i}`);
+            if (el) arr.push(el.value);
+        }
+        return arr.length ? arr : null;
     }
 
     downloadCard() {
