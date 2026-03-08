@@ -29,10 +29,11 @@ class CardGenerator {
             }
         };
         this.suits = {
-            hearts: '♥',
-            diamonds: '♦',
-            clubs: '♣',
-            spades: '♠'
+            dragon: '🐉',
+            knight: '⚔️',
+            fairy: '🧚',
+            mage: '🧙',
+            villager: '👨'
         };
     }
 
@@ -41,17 +42,21 @@ class CardGenerator {
         document.getElementById('downloadBtn').addEventListener('click', () => this.downloadCard());
         document.getElementById('rankSelect').addEventListener('change', () => this.generateCard());
         document.getElementById('suitSelect').addEventListener('change', () => this.generateCard());
-        document.getElementById('cardColor').addEventListener('change', () => this.generateCard());
     }
 
     getColorScheme() {
-        const colorSchemeSelect = document.getElementById('cardColor');
-        return this.colorSchemes[colorSchemeSelect.value];
+        return this.colorSchemes.classic;
     }
 
     getSuitColor(suit) {
-        const colors = this.getColorScheme();
-        return (suit === 'hearts' || suit === 'diamonds') ? colors.red : colors.black;
+        const suitColors = {
+            dragon: '#FFD700',  // gold
+            knight: '#0066CC',  // blue
+            mage: '#CC0000',    // red
+            fairy: '#00CC66',   // green
+            villager: '#000000' // black
+        };
+        return suitColors[suit] || '#000000';
     }
 
     generateCard() {
@@ -123,31 +128,40 @@ class CardGenerator {
         const centerX = this.cardWidth / 2;
         const centerY = this.cardHeight / 2;
 
-        // Draw large suit symbols in center
-        this.ctx.fillStyle = suitColor;
-        this.ctx.font = 'bold 120px Arial, sans-serif';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.globalAlpha = 0.15;
-        this.ctx.fillText(suitSymbol, centerX, centerY - 30);
-        this.ctx.globalAlpha = 1;
+        if (rank && rank.trim() !== '') {
+            // Draw large suit symbols in center (background)
+            this.ctx.fillStyle = suitColor;
+            this.ctx.font = 'bold 120px Arial, sans-serif';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.globalAlpha = 0.15;
+            this.ctx.fillText(suitSymbol, centerX, centerY - 30);
+            this.ctx.globalAlpha = 1;
 
-        // Draw rank in center
-        this.ctx.font = 'bold 80px Arial, sans-serif';
-        this.ctx.fillStyle = suitColor;
-        this.ctx.fillText(rank, centerX, centerY);
+            // Draw rank in center
+            this.ctx.font = 'bold 80px Arial, sans-serif';
+            this.ctx.fillStyle = suitColor;
+            this.ctx.fillText(rank, centerX, centerY);
 
-        // Draw suit symbol below rank
-        this.ctx.font = 'bold 40px Arial, sans-serif';
-        this.ctx.fillText(suitSymbol, centerX, centerY + 60);
+            // Draw suit symbol below rank
+            this.ctx.font = 'bold 40px Arial, sans-serif';
+            this.ctx.fillText(suitSymbol, centerX, centerY + 60);
 
-        // Draw decorative line
-        this.ctx.strokeStyle = suitColor;
-        this.ctx.lineWidth = 2;
-        this.ctx.beginPath();
-        this.ctx.moveTo(centerX - 60, centerY + 120);
-        this.ctx.lineTo(centerX + 60, centerY + 120);
-        this.ctx.stroke();
+            // Draw decorative line
+            this.ctx.strokeStyle = suitColor;
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            this.ctx.moveTo(centerX - 60, centerY + 120);
+            this.ctx.lineTo(centerX + 60, centerY + 120);
+            this.ctx.stroke();
+        } else {
+            // For blank cards, just draw a large centered suit symbol
+            this.ctx.fillStyle = suitColor;
+            this.ctx.font = 'bold 150px Arial, sans-serif';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText(suitSymbol, centerX, centerY);
+        }
     }
 
     downloadCard() {
