@@ -34,7 +34,7 @@ class CardGenerator {
             fairy: '🧚',
             mage: '🧙',
             villager: '👨',
-            forest: '🌲'
+            castle: '🏰'
         };
     }
 
@@ -63,7 +63,7 @@ class CardGenerator {
             mage: '#CC0000',    // red
             fairy: '#00CC66',   // green
             villager: '#000000', // black
-            forest: '#228B22'   // forest green
+            castle: '#808080'   // grey
         };
         return suitColors[suit] || '#000000';
     }
@@ -185,6 +185,32 @@ class CardGenerator {
                         const col = i % 2;
                         const colorForChar = squareColors[i] || suitColor;
                         this.ctx.fillStyle = colorForChar;
+                        this.ctx.fillText('■', startX + col * (cellW + spacing/2)+cellW/2, startY + row * (cellW + spacing/2));
+                    }
+                } else if (rank === '■■') {
+                    const cellW = this.ctx.measureText('■').width;
+                    const spacing = 10; // extra space between squares and on sides
+                    const totalWidth =  cellW * 2 + spacing;
+                    const startX = centerX - totalWidth / 2;
+                    const startY = centerY - spacing/2;
+                    for (let i = 0; i < 2; i++) {
+                        const row = 0
+                        const col = i % 2;
+                        const colorForChar = squareColors[i] || suitColor;
+                        this.ctx.fillStyle = colorForChar;
+                        this.ctx.fillText('■', startX + col * (cellW + spacing/2)+cellW/2, startY + row * (cellW + spacing/2));
+                    }
+                } else if (rank === '■') {
+                    const cellW = this.ctx.measureText('■').width;
+                    const spacing = 10; // extra space between squares and on sides
+                    const totalWidth =  cellW * 2 + spacing;
+                    const startX = centerX - totalWidth / 2;
+                    const startY = centerY - cellW - spacing/2;
+                    for (let i = 0; i < 4; i++) {
+                        const row = 1
+                        const col = 1;
+                        const colorForChar = squareColors[i] || suitColor;
+                        this.ctx.fillStyle = colorForChar;
                         this.ctx.fillText('■', startX + col * (cellW + spacing/2), startY + row * (cellW + spacing/2));
                     }
                 } else {
@@ -240,7 +266,9 @@ class CardGenerator {
     downloadCard() {
         const rank = document.getElementById('rankSelect').value;
         const suit = document.getElementById('suitSelect').value;
-        const filename = `playing-card-${rank}-${suit}.png`;
+        const color1 = document.getElementById('squareColor1').value || 'none';
+        const color2 = document.getElementById('squareColor2').value || 'none';
+        const filename = `playing-card-${rank}-${suit}-${color1}-${color2}.png`;
 
         this.canvas.toBlob((blob) => {
             const url = URL.createObjectURL(blob);
