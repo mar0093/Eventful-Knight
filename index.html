@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playing Card Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Playing Card Front Generator</h1>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="rankSelect">Card Rank:</label>
+                <select id="rankSelect">
+                    <option value="A">Ace (A)</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="J">Jack (J)</option>
+                    <option value="Q">Queen (Q)</option>
+                    <option value="K">King (K)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="suitSelect">Suit:</label>
+                <select id="suitSelect">
+                    <option value="hearts">Hearts (♥)</option>
+                    <option value="diamonds">Diamonds (♦)</option>
+                    <option value="clubs">Clubs (♣)</option>
+                    <option value="spades">Spades (♠)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="cardColor">Color Scheme:</label>
+                <select id="cardColor">
+                    <option value="classic">Classic</option>
+                    <option value="dark">Dark</option>
+                    <option value="gold">Gold</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <h2>Preview</h2>
+            <canvas id="cardCanvas" width="400" height="600"></canvas>
+        </div>
+
+        <div class="button-group">
+            <button id="generateBtn" class="btn btn-primary">Generate Card</button>
+            <button id="downloadBtn" class="btn btn-success">Download as PNG</button>
+        </div>
+
+        <div class="info">
+            <p>Select a rank, suit, and color scheme, then click "Generate Card" to create the card front. Use "Download as PNG" to save the image.</p>
+        </div>
+    </div>
+
+    <script src="card-generator.js"></script>
+</body>
+</html>
